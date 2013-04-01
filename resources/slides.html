@@ -24,24 +24,36 @@ class: center, middle
 class: center, middle
 
 # The Kibit rule system
+
+Jonas Enlund
+
+Helsinki, April 2013
+
+---
+class: center, middle
+
+# Kibit rules&nbsp;&nbsp;&nbsp;&nbsp;
+
+Jonas Enlund
+
 Helsinki, April 2013
 
 ---
 
 # Agenda
 
-1. What's Kibit?
+* What's Kibit?
 ---
 # Agenda
 
-1. What's Kibit?
-2. The implemetation of the rule system
+* What's Kibit?
+* The implemetation of the rule system
 ---
 # Agenda
 
-1. What's Kibit?
-2. The implemetation of the rule system
-3. In ~15min
+* What's Kibit?
+* The implemetation of the rule system
+* In ~15min
 ---
 
 # Kibit
@@ -252,36 +264,24 @@ class: center middle
 
 ---
 
-# (cont.)
+# Quick intro to core.logic 
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
   (== q '(+ 42 1)))
 ```
 ---
-# (cont.)
-
-```clojure
-(run* [q]
-  (== q '(+ 42 1)))
-;; ((+ 42 1))
-```
----
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
-
-(run* [q]
-  (== `(+ ~q 1) 
-      `(+ 42 1)))
 ```
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
@@ -291,10 +291,9 @@ class: center middle
 (run* [q]
   (== `(+ ~q 1) 
       `(+ 42 1)))
-;; (42)
 ```
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
@@ -305,15 +304,9 @@ class: center middle
   (== `(+ ~q 1) 
       `(+ 42 1)))
 ;; (42)
-
-(run* [q]
-  (fresh [x]
-    (== `(+ ~x 1) 
-        `(+ 42 1))
-    (== x q)))
 ```
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
@@ -330,10 +323,29 @@ class: center middle
     (== `(+ ~x 1) 
         `(+ 42 1))
     (== x q)))
+```
+---
+# Quick intro to core.logic 
+
+```clojure
+(run* [q]
+  (== q '(+ 42 1)))
+;; ((+ 42 1))
+
+(run* [q]
+  (== `(+ ~q 1) 
+      `(+ 42 1)))
+;; (42)
+
+(run* [q]
+  (fresh [x]
+    (== `(+ ~x 1) 
+        `(+ 42 1))
+    (== x q)))
 ;; (42)
 ```
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
@@ -360,7 +372,7 @@ class: center middle
 
 ```
 ---
-# (cont.)
+# Quick intro to core.logic 
 
 ```clojure
 (run* [q]
@@ -1073,10 +1085,9 @@ class: center middle
 ---
 class: center middle
 # Thanks for listening!
----
-class: center middle
-# `?q`
----
+# ?questions
+[`http://github.com/jonase/kibit-demo`](http://github.com/jonase/kibit-demo)
+
    
 </textarea>
     <div id="slideshow"></div>
