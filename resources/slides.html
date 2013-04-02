@@ -56,12 +56,17 @@ Helsinki, April 2013
 # Rules
 
 ```clojure
-(defrules arithmetic
-  [(+ ?x 1) (inc ?x)]
-  [(= ?x 0) (zero? ?x)]
-  ...)
+(defrules rules
+  [(into [] ?coll) (vec ?coll)]
+  [(into #{} ?coll) (set ?coll)]
+  [(take ?n (repeatedly ?coll)) (repeatedly ?n ?coll)]
+  [(not (empty? ?x)) (seq ?x)]
+  [(when-not (empty? ?x) . ?y) (when (seq ?x) . ?y)]
+  [(assoc ?coll ?key (?fn (?key ?coll) . ?args)) (update-in ?coll [?key] ?fn . ?args)]
+  [(update-in ?coll ?keys assoc ?val) (assoc-in ?coll ?keys ?val)]
+  ... etc.
+ )
 ```
-
 
 ---
 
