@@ -28,22 +28,6 @@ Helsinki, April 2013
 
 ---
 
-# Agenda
-
-1. What's Kibit?
----
-# Agenda
-
-1. What's Kibit?
-2. The implemetation of the rule system
----
-# Agenda
-
-1. What's Kibit?
-2. The implemetation of the rule system
-3. In ~15min
----
-
 # Kibit
 ---
 # Kibit
@@ -69,7 +53,62 @@ Helsinki, April 2013
 * The rule system is built with `core.logic`
 ---
 
-# Test run
+# Rules
+
+```clojure
+(defrules arithmetic
+  [(+ ?x 1) (inc ?x)]
+  [(= ?x 0) (zero? ?x)]
+  ...)
+```
+
+
+---
+
+```
+$ lein kibit src/overtone/examples/compositions/jazz.clj
+
+```
+---
+
+```
+$ lein kibit src/overtone/examples/compositions/jazz.clj
+
+At src/overtone/examples/compositions/jazz.clj:100:
+Consider using:
+  (if-not (zero? (mod beat 2))
+    (dec n)
+    (limit (+ n (rand-nth jazz-intervals)) maxbass minbass))
+instead of:
+  (if (not (zero? (mod beat 2)))
+    (dec n)
+    (limit (+ n (rand-nth jazz-intervals)) maxbass minbass))
+
+
+```
+---
+
+```
+$ lein kibit src/overtone/examples/compositions/jazz.clj
+
+At src/overtone/examples/compositions/jazz.clj:100:
+Consider using:
+  (if-not (zero? (mod beat 2))
+    (dec n)
+    (limit (+ n (rand-nth jazz-intervals)) maxbass minbass))
+instead of:
+  (if (not (zero? (mod beat 2)))
+    (dec n)
+    (limit (+ n (rand-nth jazz-intervals)) maxbass minbass))
+
+At src/overtone/examples/compositions/jazz.clj:114:
+Consider using:
+  (inc beat)
+instead of:
+  (+ beat 1)
+
+```
+---
 
 ```
 $ lein kibit src/overtone/examples/compositions/jazz.clj
@@ -101,17 +140,6 @@ instead of:
       (at (metro start) (rotater-on note vel))
       (apply-by (metro (+ len start)) #'rotater-off [note])))
 
-```
-
----
-
-# Rules
-
-```clojure
-(defrules arithmetic
-  [(+ ?x 1) (inc ?x)]
-  [(= ?x 0) (zero? ?x)]
-  ...)
 ```
 
 ---
