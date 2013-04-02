@@ -30,16 +30,6 @@ Jonas Enlund
 Helsinki, April 2013
 
 ---
-class: center, middle
-
-# Kibit rules&nbsp;&nbsp;&nbsp;&nbsp;
-
-Jonas Enlund
-
-Helsinki, April 2013
-
----
-
 # Kibit
 ---
 # Kibit
@@ -70,16 +60,62 @@ Helsinki, April 2013
 ```clojure
 (defrules rules
   [(into [] ?coll) (vec ?coll)]
-  [(into #{} ?coll) (set ?coll)]
-  [(take ?n (repeatedly ?coll)) (repeatedly ?n ?coll)]
+  ...
+)
+```
+---
+
+# Rules
+
+```clojure
+(defrules rules
+  [(into [] ?coll) (vec ?coll)]
   [(not (empty? ?x)) (seq ?x)]
-  [(when-not (empty? ?x) . ?y) (when (seq ?x) . ?y)]
-  [(assoc ?coll ?key (?fn (?key ?coll) . ?args)) (update-in ?coll [?key] ?fn . ?args)]
-  [(update-in ?coll ?keys assoc ?val) (assoc-in ?coll ?keys ?val)]
+  ...
+)
+```
+---
+
+# Rules
+
+```clojure
+(defrules rules
+  [(into [] ?coll) (vec ?coll)]
+  [(not (empty? ?x)) (seq ?x)]
+  [(take ?n (repeatedly ?coll)) (repeatedly ?n ?coll)]
+  ...
+)
+```
+---
+
+# Rules
+
+```clojure
+(defrules rules
+  [(into [] ?coll) (vec ?coll)]
+  [(not (empty? ?x)) (seq ?x)]
+  [(take ?n (repeatedly ?coll)) (repeatedly ?n ?coll)]
+  [(assoc ?coll ?key (?fn (?key ?coll) . ?args)) 
+   (update-in ?coll [?key] ?fn . ?args)]
+  ...
+)
+```
+---
+
+# Rules
+
+```clojure
+(defrules rules
+  [(into [] ?coll) (vec ?coll)]
+  [(not (empty? ?x)) (seq ?x)]
+  [(take ?n (repeatedly ?coll)) (repeatedly ?n ?coll)]
+  [(assoc ?coll ?key (?fn (?key ?coll) . ?args)) 
+   (update-in ?coll [?key] ?fn . ?args)]
+  [(update-in ?coll ?keys assoc ?val) 
+   (assoc-in ?coll ?keys ?val)]
   ... etc.
  )
 ```
-
 ---
 
 ```
@@ -87,7 +123,6 @@ $ lein kibit src/overtone/examples/compositions/jazz.clj
 
 ```
 ---
-
 ```
 $ lein kibit src/overtone/examples/compositions/jazz.clj
 
@@ -100,8 +135,6 @@ instead of:
   (if (not (zero? (mod beat 2)))
     (dec n)
     (limit (+ n (rand-nth jazz-intervals)) maxbass minbass))
-
-
 ```
 ---
 
@@ -156,7 +189,6 @@ instead of:
     (do
       (at (metro start) (rotater-on note vel))
       (apply-by (metro (+ len start)) #'rotater-off [note])))
-
 ```
 
 ---
