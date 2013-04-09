@@ -223,23 +223,6 @@ class: center middle
 
 ```clojure
 (run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-```
-
----
-
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
   (== q 42))
 ;; (42)
 ```
@@ -989,7 +972,10 @@ class: center middle
 (my-rules '(if (some f xs) f nil))
 ;; ([(if (some f xs) f nil) (when (some f xs) f)])
 
-(my-rules '(fn [x] (+ x 1)))
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil)))
 ```
 ---
 # Test run
@@ -997,7 +983,10 @@ class: center middle
 (my-rules '(if (some f xs) f nil))
 ;; ([(if (some f xs) f nil) (when (some f xs) f)])
 
-(my-rules '(fn [x] (+ x 1)))
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil)))
 ;; []
 ```
 ---
@@ -1055,7 +1044,10 @@ class: center middle
           (== patt e)
           (== [e subst] q))))))
 
-(my-rules '(fn [x] (+ x 1)))
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
 ```
 ---
 # tree-seq and membero
@@ -1076,77 +1068,200 @@ class: center middle
           (== patt e)
           (== [e subst] q))))))
 
-(my-rules '(fn [x] (+ x 1)))
-;; ([(+ x 1) (inc x)])
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+;; ([(+ x 1) (inc x)] 
+;;  [(< x 0) (neg? x)] 
+;;  [(if (< x 0) (+ x 1) nil) (when (< x 0) (+ x 1))])
 ```
 ---
 # Simplify
 ---
 # Simplify
 ```clojure
-(defn simplify [expr rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn expr)) 
-                        expr))
+(defn simplify-one [term rules-fn]
+  (walk/prewalk-replace (into {} (rules-fn term))
+                        term))
 ```
 ---
 # Simplify
 ```clojure
-(defn simplify [expr rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn expr)) 
-                        expr))
+(defn simplify-one [term rules-fn]
+  (walk/prewalk-replace (into {} (rules-fn term))
+                        term))
 
-(def expr 
-  '(defn my-fun [xs]
-     (apply concat 
-            (map (fn [x]
-                   (into [] (if (< x 0)
-                              [(- x 1) (+ x 1)]
-                              nil)))
-                 xs))))
-
+(defn simplify [term rules-fn]
+  (loop [term term]
+    (let [sterm (simplify-one term rules-fn)]
+      (if (= sterm term)
+        sterm
+        (recur sterm)))))
 ```
 ---
-# Simplify
+# Examples
 ```clojure
-(defn simplify [expr rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn expr)) 
-                        expr))
-
-(def expr 
-  '(defn my-fun [xs]
-     (apply concat 
-            (map (fn [x]
-                   (into [] (if (< x 0)
-                              [(- x 1) (+ x 1)]
-                              nil)))
-                 xs))))
-
-(simplify expr my-rules)
+(simplify '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+          my-rules)
 ```
 ---
-# Simplify
+# Examples
 ```clojure
-(defn simplify [expr rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn expr)) 
-                        expr))
+(simplify '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+          my-rules)
+;; (fn [x] 
+;;   (when (neg? x) 
+;;     (inc x)))
+```
+---
+# Examples
+```clojure
+(simplify '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+          my-rules)
+;; (fn [x] 
+;;   (when (neg? x) 
+;;     (inc x)))
 
-(def expr 
-  '(defn my-fun [xs]
-     (apply concat 
-            (map (fn [x]
-                   (into [] (if (< x 0)
-                              [(- x 1) (+ x 1)]
-                              nil)))
-                 xs))))
+(simplify '(defn my-fun [xs]
+             (apply concat 
+                    (map (fn [x]
+                           (into [] (if (< x 0)
+                                      [(- x 1) (+ x 1)]
+                                      nil)))
+                         xs)))
+          my-rules)
+```
+---
+# Examples
+```clojure
+(simplify '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+          my-rules)
+;; (fn [x] 
+;;   (when (neg? x) 
+;;     (inc x)))
 
-(simplify expr my-rules)
+(simplify '(defn my-fun [xs]
+             (apply concat 
+                    (map (fn [x]
+                           (into [] (if (< x 0)
+                                      [(- x 1) (+ x 1)]
+                                      nil)))
+                         xs)))
+          my-rules)
 ;; (defn my-fun [xs] 
 ;;   (mapcat (fn [x] 
 ;;             (vec (when (neg? x) 
 ;;                    [(dec x) (inc x)]))) 
 ;;           xs))
 ```
+---
+# &nbsp;
+```clojure
+(defrules <???>)
+```
+---
+# &nbsp;
+```clojure
+(defrules <???>
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))])
+```
+---
+# &nbsp;
+```clojure
+(defrules <???>
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))])
+```
+---
+# &nbsp;
+```clojure
+(defrules <???>
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))]
+  [(sort nil) nil]
+  [(sort (cons ?x ?y)) (insert ?x (sort ?y))])
+```
+---
+# Insertion sort
+```clojure
+(defrules insertion-sort
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))]
+  [(sort nil) nil]
+  [(sort (cons ?x ?y)) (insert ?x (sort ?y))]
+  [(insert ?x nil) (cons ?x nil)]
+  [(insert ?x (cons ?y ?z)) (cons (min ?x ?y) (insert (max ?x ?y) ?z))])
+```
+---
+# Insertion sort
+```clojure
+(defrules insertion-sort
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))]
+  [(sort nil) nil]
+  [(sort (cons ?x ?y)) (insert ?x (sort ?y))]
+  [(insert ?x nil) (cons ?x nil)]
+  [(insert ?x (cons ?y ?z)) (cons (min ?x ?y) (insert (max ?x ?y) ?z))])
 
+(simplify '(sort (cons (s (s z)) 
+                       (cons (s z) 
+                             (cons (s (s (s z))) 
+                                   (cons z nil)))))
+          insertion-sort)
+```
+---
+# Insertion sort
+```clojure
+(defrules insertion-sort
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))]
+  [(sort nil) nil]
+  [(sort (cons ?x ?y)) (insert ?x (sort ?y))]
+  [(insert ?x nil) (cons ?x nil)]
+  [(insert ?x (cons ?y ?z)) (cons (min ?x ?y) (insert (max ?x ?y) ?z))])
+
+(simplify '(sort (cons (s (s z)) 
+                       (cons (s z) 
+                             (cons (s (s (s z))) 
+                                   (cons z nil)))))
+          insertion-sort)
+;; (cons z (cons (s z) (cons (s (s z)) (cons (s (s (s z))) nil))))
+```
 ---
 class: center middle
 # Thanks for listening!

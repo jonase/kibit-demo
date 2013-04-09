@@ -2,7 +2,8 @@
   (:refer-clojure :exclude [==])
   (:require [clojure.core.logic 
              :refer [== run* fresh lvar membero]]
-            [clojure.walk :as walk]))
+            [clojure.walk :as walk]
+            [clojure.pprint :refer [pprint]]))
 
 
 (run* [q]
@@ -172,7 +173,10 @@
 (my-rules '(if (some f xs) f nil))
 ;; ([(if (some f xs) f nil) (when (some f xs) f)])
 
-(my-rules '(fn [x] (+ x 1)))
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil)))
 ;; []
 
 ;; Rules version 2
@@ -193,25 +197,97 @@
           (== patt e)
           (== [e subst] q))))))
 
-(my-rules '(fn [x] (+ x 1)))
-;; ([(+ x 1) (inc x)])
+(my-rules '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil)))
+;; ([(+ x 1) (inc x)] 
+;;  [(< x 0) (neg? x)] 
+;;  [(if (< x 0) (+ x 1) nil) (when (< x 0) (+ x 1))])
 
-(defn simplify [expr rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn expr)) 
-                        expr))
+(defn simplify-one [term rules-fn]
+  (walk/prewalk-replace (into {} (rules-fn term))
+                        term))
 
-(def expr 
-  '(defn my-fun [xs]
-     (apply concat 
-            (map (fn [x]
-                   (into [] (if (< x 0)
-                              [(- x 1) (+ x 1)]
-                              nil)))
-                 xs))))
+(defn simplify [term rules-fn]
+  (loop [term term]
+    (let [sterm (simplify-one term rules-fn)]
+      (if (= sterm term)
+        sterm
+        (recur sterm)))))
 
-(simplify expr my-rules)
+(simplify '(fn [x] 
+             (if (< x 0) 
+               (+ x 1)
+               nil))
+          my-rules)
+;; (fn [x] 
+;;   (when (neg? x) 
+;;     (inc x)))
+
+(simplify '(defn my-fun [xs]
+             (apply concat 
+                    (map (fn [x]
+                           (into [] (if (< x 0)
+                                      [(- x 1) (+ x 1)]
+                                      nil)))
+                         xs)))
+          my-rules)
 ;; (defn my-fun [xs] 
 ;;   (mapcat (fn [x] 
 ;;             (vec (when (neg? x) 
 ;;                    [(dec x) (inc x)]))) 
 ;;           xs))
+
+
+;; http://www.cs.tau.ac.il/~nachumd/rewrite/97/notes97.pdf
+;; http://www.cs.tau.ac.il/~nachum/papers/taste-fixed.pdf
+(defrules insertion-sort
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))]
+  [(min z ?x) z]
+  [(min ?x z) z]
+  [(min (s ?x) (s ?y)) (s (min ?x ?y))]
+  [(sort nil) nil]
+  [(sort (cons ?x ?y)) (insert ?x (sort ?y))]
+  [(insert ?x nil) (cons ?x nil)]
+  [(insert ?x (cons ?y ?z)) (cons (min ?x ?y) (insert (max ?x ?y) ?z))])
+
+(simplify '(sort (cons (s (s z)) 
+                       (cons (s z) 
+                             (cons (s (s (s z))) 
+                                   (cons z nil)))))
+          insertion-sort)
+;; (cons z (cons (s z) (cons (s (s z)) (cons (s (s (s z))) nil))))
+
+
+(defn to-peano [n]
+  (if (zero? n) 'z (list 's (to-peano (dec n)))))
+
+(defn from-peano [s]
+  (if (= s 'z) 0 (inc (from-peano (second s)))))
+
+(from-peano (to-peano 10))
+
+(defn to-cons [coll]
+  (when coll (list 'cons (first coll) (to-cons (next coll)))))
+
+(defn from-cons [c]
+  (when c (cons (second c) (from-cons (nth c 2)))))
+
+(from-cons (to-cons [1 2 3]))
+
+(defn encode [coll]
+  (to-cons (map to-peano coll)))
+
+(defn decode [c]
+  (map from-peano (from-cons c)))
+
+(decode (encode [5 3 1 2 4]))
+
+(defn isort [coll]
+  (let [term (list 'sort (encode coll))]
+    (-> term (simplify insertion-sort) decode)))
+
+(isort [3 1 4 2])
