@@ -223,10 +223,25 @@ class: center middle
 
 ```clojure
 (run* [q]
+  (== 42 q))
+;; (42)
+
+(run* [q]
+  (== q 42))
+```
+---
+
+# Quick intro to core.logic
+
+```clojure
+(run* [q]
+  (== 42 q))
+;; (42)
+
+(run* [q]
   (== q 42))
 ;; (42)
 ```
-
 ---
 
 # Quick intro to core.logic
@@ -987,7 +1002,7 @@ class: center middle
              (if (< x 0) 
                (+ x 1)
                nil)))
-;; []
+;; ()
 ```
 ---
 # tree-seq and membero
@@ -1260,14 +1275,23 @@ class: center middle
                              (cons (s (s (s z))) 
                                    (cons z nil)))))
           insertion-sort)
-;; (cons z (cons (s z) (cons (s (s z)) (cons (s (s (s z))) nil))))
+;; (cons z 
+;;       (cons (s z) 
+;;             (cons (s (s z)) 
+;;                   (cons (s (s (s z))) 
+;;                         nil))))
 ```
 ---
 class: center middle
 # Thanks for listening!
 # ?questions
-[`http://github.com/jonase/kibit-demo`](http://github.com/jonase/kibit-demo)
+&nbsp;
 
+&nbsp;
+
+code: [`http://github.com/jonase/kibit-demo`](http://github.com/jonase/kibit-demo)
+
+slides: [`http://jonase.github.io/kibit-demo`](http://jonase.github.io/kibit-demo)
    
 </textarea>
     <div id="slideshow"></div>

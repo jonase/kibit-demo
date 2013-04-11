@@ -1,10 +1,9 @@
 (ns kibit-demo.core
-  (:refer-clojure :exclude [==])
+  (:refer-clojure :exclude [== min max])
   (:require [clojure.core.logic 
              :refer [== run* fresh lvar membero]]
             [clojure.walk :as walk]
             [clojure.pprint :refer [pprint]]))
-
 
 (run* [q]
   (== 42 q))
@@ -100,9 +99,6 @@
  '(update-in coll [:x :y] assoc 42))
 ;; ((assoc-in coll [:x :y] 42))
 
-
-;; Rule version 2
-
 (defn rule [r]
   (let [r (prepare r)]
     (fn [expr]  
@@ -116,14 +112,9 @@
  '(+ 42 1))
 ;; ([(+ 42 1) (inc 42)])
 
-
-;; Rules vesion 1:
-;; Meet membero
-
 (run* [q]
   (membero q [1 2 3 4]))
 ;; (1 2 3 4)
-
 
 (run* [q]
   (membero 2 [1 q 3 4]))
@@ -143,9 +134,9 @@
   (fresh [x y]
     (== x y)
     (membero x [1 2 3 4])
-    (membero y [1 2 3 4])
+    (membero y [3 4 5 6])
     (== q [x y])))
-;; ([1 1] [2 2] [3 3] [4 4])
+;; ([3 3] [4 4])
 
 (defn rules [rs]
   (let [rs (map prepare rs)]
@@ -177,9 +168,7 @@
              (if (< x 0) 
                (+ x 1)
                nil)))
-;; []
-
-;; Rules version 2
+;; ()
 
 (tree-seq sequential? seq '(map (fn [x y] (+ x y)) xs))
 ;; ((map (fn [x y] (+ x y)) xs), 
@@ -206,6 +195,7 @@
 ;;  [(if (< x 0) (+ x 1) nil) (when (< x 0) (+ x 1))])
 
 (defn simplify-one [term rules-fn]
+  (println "simplifying" term)
   (walk/prewalk-replace (into {} (rules-fn term))
                         term))
 
@@ -261,7 +251,6 @@
           insertion-sort)
 ;; (cons z (cons (s z) (cons (s (s z)) (cons (s (s (s z))) nil))))
 
-
 (defn to-peano [n]
   (if (zero? n) 'z (list 's (to-peano (dec n)))))
 
@@ -269,6 +258,7 @@
   (if (= s 'z) 0 (inc (from-peano (second s)))))
 
 (from-peano (to-peano 10))
+;; 10
 
 (defn to-cons [coll]
   (when coll (list 'cons (first coll) (to-cons (next coll)))))
@@ -277,6 +267,7 @@
   (when c (cons (second c) (from-cons (nth c 2)))))
 
 (from-cons (to-cons [1 2 3]))
+;; (1 2 3)
 
 (defn encode [coll]
   (to-cons (map to-peano coll)))
@@ -284,10 +275,23 @@
 (defn decode [c]
   (map from-peano (from-cons c)))
 
-(decode (encode [5 3 1 2 4]))
+(decode (encode [3 1 4 2]))
+;; (3 1 4 2)
 
 (defn isort [coll]
   (let [term (list 'sort (encode coll))]
     (-> term (simplify insertion-sort) decode)))
 
 (isort [3 1 4 2])
+;; (1 2 3 4)
+
+(defrules factorial
+  [(+ z ?x) ?x]
+  [(+ (s ?x) ?y) (s (+ ?x ?y))]
+  [(* z ?x) z]
+  [(* (s ?x) ?y) (+ ?y (* ?x ?y))]
+  [(fact z) (s z)]
+  [(fact (s ?x)) (* (s ?x) (fact ?x))])
+
+(simplify '(fact (s (s (s z)))) factorial)
+;; (s (s (s (s (s (s z))))))
