@@ -194,44 +194,58 @@
 ;;  [(< x 0) (neg? x)] 
 ;;  [(if (< x 0) (+ x 1) nil) (when (< x 0) (+ x 1))])
 
-(defn simplify-one [term rules-fn]
-  (println "simplifying" term)
+(defn simplify* [term rules-fn]
   (walk/prewalk-replace (into {} (rules-fn term))
                         term))
 
-(defn simplify [term rules-fn]
-  (loop [term term]
-    (let [sterm (simplify-one term rules-fn)]
-      (if (= sterm term)
-        sterm
-        (recur sterm)))))
-
-(simplify '(fn [x] 
-             (if (< x 0) 
-               (+ x 1)
-               nil))
-          my-rules)
+(simplify* '(fn [x] 
+              (if (< x 0) 
+                (+ x 1)
+                nil))
+           my-rules)
 ;; (fn [x] 
 ;;   (when (neg? x) 
 ;;     (inc x)))
 
-(simplify '(defn my-fun [xs]
-             (apply concat 
-                    (map (fn [x]
-                           (into [] (if (< x 0)
-                                      [(- x 1) (+ x 1)]
-                                      nil)))
-                         xs)))
-          my-rules)
+(simplify* '(defn my-fun [xs]
+              (apply concat 
+                     (map (fn [x]
+                            (into [] (if (< x 0)
+                                       [(- x 1) (+ x 1)]
+                                       nil)))
+                          xs)))
+           my-rules)
 ;; (defn my-fun [xs] 
 ;;   (mapcat (fn [x] 
 ;;             (vec (when (neg? x) 
 ;;                    [(dec x) (inc x)]))) 
 ;;           xs))
 
+(defn simplify [term rules-fn]
+  (loop [term term]
+    (let [sterm (simplify* term rules-fn)]
+      (if (= sterm term)
+        sterm
+        (recur sterm)))))
 
 ;; http://www.cs.tau.ac.il/~nachumd/rewrite/97/notes97.pdf
 ;; http://www.cs.tau.ac.il/~nachum/papers/taste-fixed.pdf
+(defrules max-rule
+  [(max z ?x) ?x]
+  [(max ?x z) ?x]
+  [(max (s ?x) (s ?y)) (s (max ?x ?y))])
+
+(simplify* '(max (s (s (s z)))
+                 (s (s (s (s (s z))))))
+           max-rule)
+;; (s (max (s (s z)) 
+;;         (s (s (s (s z))))))
+
+(simplify '(max (s (s (s z)))
+                (s (s (s (s (s z))))))
+          max-rule)
+;; (s (s (s (s (s z)))))
+
 (defrules insertion-sort
   [(max z ?x) ?x]
   [(max ?x z) ?x]
