@@ -10,6 +10,9 @@
       body {
         font-family: arial; 
       }
+      li {
+        font-size: 1.3em;
+      }
     </style>
   </head>
   <body>
@@ -52,7 +55,7 @@ Helsinki, April 2013
 * kibit is a static code analyzer for Clojure
 * implemented as a leiningen plugin
 * finds patterns of code and generates reports
-* The rule system is built with `core.logic`
+* The rule system is built with core.logic
 ---
 
 ```
@@ -188,119 +191,13 @@ class: center middle
 ```
 ---
 
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-```
----
-
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-;; (42)
-```
----
-
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 42 q))
-```
-
----
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 42 q))
-;; (42)
-```
-
----
-
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 41 q))
-```
-
----
-
-# Quick intro to core.logic
-
-```clojure
-(run* [q]
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 42 q))
-;; (42)
-
-(run* [q]
-  (== q 42)
-  (== 41 q))
-;; ()
-```
-
----
-
-# Quick intro to core.logic 
----
 # Quick intro to core.logic 
 
 ```clojure
+(run* [q]
+  (== 42 q))
+;; (42)
+
 (run* [q]
   (== q '(+ 42 1)))
 ```
@@ -308,6 +205,10 @@ class: center middle
 # Quick intro to core.logic 
 
 ```clojure
+(run* [q]
+  (== 42 q))
+;; (42)
+
 (run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
@@ -316,6 +217,10 @@ class: center middle
 # Quick intro to core.logic 
 
 ```clojure
+(run* [q]
+  (== 42 q))
+;; (42)
+
 (run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
@@ -328,6 +233,10 @@ class: center middle
 # Quick intro to core.logic 
 
 ```clojure
+(run* [q]
+  (== 42 q))
+;; (42)
+
 (run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
@@ -342,24 +251,9 @@ class: center middle
 
 ```clojure
 (run* [q]
-  (== q '(+ 42 1)))
-;; ((+ 42 1))
-
-(run* [q]
-  (== `(+ ~q 1) 
-      `(+ 42 1)))
+  (== 42 q))
 ;; (42)
 
-(run* [q]
-  (fresh [x]
-    (== `(+ ~x 1) 
-        `(+ 42 1))
-    (== x q)))
-```
----
-# Quick intro to core.logic 
-
-```clojure
 (run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
@@ -367,33 +261,6 @@ class: center middle
 (run* [q]
   (== `(+ ~q 1) 
       `(+ 42 1)))
-;; (42)
-
-(run* [q]
-  (fresh [x]
-    (== `(+ ~x 1) 
-        `(+ 42 1))
-    (== x q)))
-;; (42)
-```
----
-# Quick intro to core.logic 
-
-```clojure
-(run* [q]
-  (== q '(+ 42 1)))
-;; ((+ 42 1))
-
-(run* [q]
-  (== `(+ ~q 1) 
-      `(+ 42 1)))
-;; (42)
-
-(run* [q]
-  (fresh [x]
-    (== `(+ ~x 1) 
-        `(+ 42 1))
-    (== x q)))
 ;; (42)
 
 (run* [q]
@@ -408,19 +275,16 @@ class: center middle
 
 ```clojure
 (run* [q]
+  (== 42 q))
+;; (42)
+
+(run* [q]
   (== q '(+ 42 1)))
 ;; ((+ 42 1))
 
 (run* [q]
   (== `(+ ~q 1) 
       `(+ 42 1)))
-;; (42)
-
-(run* [q]
-  (fresh [x]
-    (== `(+ ~x 1) 
-        `(+ 42 1))
-    (== x q)))
 ;; (42)
 
 (run* [q]
@@ -703,9 +567,9 @@ class: center middle
 ```
 ---
 
-# `rule` version 0.0.2
+# Rule v.2
 ---
-# `rule` version 0.0.2
+# Rule v.2
 ```clojure
 (defn rule [r]
   (let [r (prepare r)]
@@ -717,7 +581,7 @@ class: center middle
           (== [expr subst] q))))))
 ```
 ---
-# `rule` version 0.0.2
+# Rule v.2
 ```clojure
 (defn rule [r]
   (let [r (prepare r)]
@@ -732,7 +596,7 @@ class: center middle
  '(+ 42 1))
 ```
 ---
-# `rule` version 0.0.2
+# Rule v.2
 ```clojure
 (defn rule [r]
   (let [r (prepare r)]
