@@ -47,10 +47,10 @@
 ;; ((clojure.core/inc 42))
 
 
-(defn inc-rule [expr]
+(defn inc-rule [form]
   (run* [q]
     (fresh [x]
-      (== `(+ ~x 1) expr)
+      (== `(+ ~x 1) form)
       (== `(inc ~x) q))))
 
 (inc-rule `(+ 42 1))
@@ -60,9 +60,9 @@
 ;; ()
 
 (defn rule [[patt subst]]
-  (fn [expr]
+  (fn [form]
     (run* [q]
-      (== patt expr)
+      (== patt form)
       (== subst q))))
 
 ((rule [`(+ ~(lvar 'x false) 1) 
@@ -75,8 +75,8 @@
       val  (lvar 'val  false)
       update-in-rule (rule [`(update-in ~coll ~keys assoc ~val)
                             `(assoc-in ~coll ~keys ~val)])
-      expression `(update-in {:x {:y 0}} [:x :z] assoc 0)]
-  (update-in-rule expression))
+      form `(update-in {:x {:y 0}} [:x :z] assoc 0)]
+  (update-in-rule form))
 ;; ((clojure.core/assoc-in {:x {:y 0}} [:x :z] 0))
 
 (defn prepare [form]
@@ -101,12 +101,12 @@
 
 (defn rule [r]
   (let [r (prepare r)]
-    (fn [expr]  
+    (fn [form]  
       (run* [q]
         (fresh [patt subst]
           (== [patt subst] r)
-          (== patt expr)
-          (== [expr subst] q))))))
+          (== patt form)
+          (== [form subst] q))))))
 
 ((rule '[(+ ?x 1) (inc ?x)])
  '(+ 42 1))
@@ -140,12 +140,12 @@
 
 (defn rules [rs]
   (let [rs (map prepare rs)]
-    (fn [expr]
+    (fn [form]
       (run* [q]
         (fresh [patt subst]
           (membero [patt subst] rs)
-          (== patt expr)
-          (== [expr subst] q))))))
+          (== patt form)
+          (== [form subst] q))))))
 
 (defmacro defrules
   [name & rs]
@@ -178,13 +178,13 @@
 
 (defn rules [rs]
   (let [rs (map prepare rs)]
-    (fn [expr]
+    (fn [form]
       (run* [q]
-        (fresh [patt subst e]
+        (fresh [patt subst subform]
           (membero [patt subst] rs)
-          (membero e (tree-seq sequential? seq expr))
-          (== patt e)
-          (== [e subst] q))))))
+          (membero subform (tree-seq sequential? seq form))
+          (== patt subform)
+          (== [subform subst] q))))))
 
 (my-rules '(fn [x] 
              (if (< x 0) 
@@ -194,9 +194,9 @@
 ;;  [(< x 0) (neg? x)] 
 ;;  [(if (< x 0) (+ x 1) nil) (when (< x 0) (+ x 1))])
 
-(defn simplify* [term rules-fn]
-  (walk/prewalk-replace (into {} (rules-fn term))
-                        term))
+(defn simplify* [form rules-fn]
+  (walk/prewalk-replace (into {} (rules-fn form))
+                        form))
 
 (simplify* '(fn [x] 
               (if (< x 0) 
@@ -221,12 +221,12 @@
 ;;                    [(dec x) (inc x)]))) 
 ;;           xs))
 
-(defn simplify [term rules-fn]
-  (loop [term term]
-    (let [sterm (simplify* term rules-fn)]
-      (if (= sterm term)
-        sterm
-        (recur sterm)))))
+(defn simplify [form rules-fn]
+  (loop [form form]
+    (let [new-form (simplify* form rules-fn)]
+      (if (= new-form form)
+        new-form
+        (recur new-form)))))
 
 ;; http://www.cs.tau.ac.il/~nachumd/rewrite/97/notes97.pdf
 ;; http://www.cs.tau.ac.il/~nachum/papers/taste-fixed.pdf
@@ -293,8 +293,8 @@
 ;; (3 1 4 2)
 
 (defn isort [coll]
-  (let [term (list 'sort (encode coll))]
-    (-> term (simplify insertion-sort) decode)))
+  (let [form (list 'sort (encode coll))]
+    (-> form (simplify insertion-sort) decode)))
 
 (isort [3 1 4 2])
 ;; (1 2 3 4)
