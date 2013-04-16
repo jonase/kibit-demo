@@ -393,8 +393,8 @@ class: center middle
       val  (lvar 'val  false)
       update-in-rule (rule [`(update-in ~coll ~keys assoc ~val)
                             `(assoc-in ~coll ~keys ~val)])
-      formession `(update-in {:x {:y 0}} [:x :z] assoc 0)]
-  (update-in-rule formession))
+      form `(update-in {:x {:y 0}} [:x :z] assoc 0)]
+  (update-in-rule form))
 ```
 ---
 # `((rule [<pattern> <subst>]) <form>)`
@@ -415,8 +415,8 @@ class: center middle
       val  (lvar 'val  false)
       update-in-rule (rule [`(update-in ~coll ~keys assoc ~val)
                             `(assoc-in ~coll ~keys ~val)])
-      formession `(update-in {:x {:y 0}} [:x :z] assoc 0)]
-  (update-in-rule formession))
+      form `(update-in {:x {:y 0}} [:x :z] assoc 0)]
+  (update-in-rule form))
 ;; ((clojure.core/assoc-in {:x {:y 0}} [:x :z] 0))
 ```
 ---
@@ -784,9 +784,9 @@ class: center middle
       (run* [q]
         (fresh [patt subst e]
           (membero [patt subst] rs)
-          (membero e (tree-seq sequential? seq form))
-          (== patt e)
-          (== [e subst] q))))))
+          (membero subform (tree-seq sequential? seq form))
+          (== patt subform)
+          (== [subform subst] q))))))
 
 ```
 ---
@@ -804,9 +804,9 @@ class: center middle
       (run* [q]
         (fresh [patt subst e]
           (membero [patt subst] rs)
-          (membero e (tree-seq sequential? seq form))
-          (== patt e)
-          (== [e subst] q))))))
+          (membero subform (tree-seq sequential? seq form))
+          (== patt subform)
+          (== [subform subst] q))))))
 
 (my-rules '(fn [x] 
              (if (< x 0) 
