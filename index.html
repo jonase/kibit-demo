@@ -782,7 +782,7 @@ class: center middle
   (let [rs (map prepare rs)]
     (fn [form]
       (run* [q]
-        (fresh [patt subst e]
+        (fresh [patt subst subform]
           (membero [patt subst] rs)
           (membero subform (tree-seq sequential? seq form))
           (== patt subform)
